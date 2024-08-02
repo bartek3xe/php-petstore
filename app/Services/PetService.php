@@ -21,7 +21,7 @@ class PetService implements PetServiceInterface
 
         foreach (PetStatusEnum::values() as $status) {
             $pets = $this->httpRequestService->makeRequest('GET', 'pet/findByStatus', [
-                'query' => ['status' => $status->value]
+                'query' => ['status' => $status]
             ]);
 
             if ($pets) {
