@@ -8,7 +8,7 @@ use App\Contracts\PetServiceInterface;
 
 class PetService implements PetServiceInterface
 {
-    private const BASE_API_URL = 'https://petstore.swagger.io/v2/';
+    public const BASE_API_URL = 'https://petstore.swagger.io/v2/';
 
     public function __construct(private readonly HttpRequestService $httpRequestService)
     {
