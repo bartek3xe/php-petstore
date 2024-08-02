@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\PetServiceInterface;
+use App\Enums\PetStatusEnum;
 
 class PetService implements PetServiceInterface
 {
@@ -16,9 +17,19 @@ class PetService implements PetServiceInterface
 
     public function getAllPets(): array
     {
-        return $this->httpRequestService->makeRequest('GET', 'pet/findByStatus', [
-            'query' => ['status' => 'available']
-        ]);
+        $allPets = [];
+
+        foreach (PetStatusEnum::values() as $status) {
+            $pets = $this->httpRequestService->makeRequest('GET', 'pet/findByStatus', [
+                'query' => ['status' => $status->value]
+            ]);
+
+            if ($pets) {
+                $allPets = array_merge($allPets, $pets);
+            }
+        }
+
+        return $allPets;
     }
 
     public function getPetById(string $id): array
