@@ -14,7 +14,7 @@ class PetService implements PetServiceInterface
     {
     }
 
-    public function getAllPets()
+    public function getAllPets(): array
     {
         return $this->httpRequestService->makeRequest('GET', 'pet/findByStatus', [
             'query' => ['status' => 'available']
