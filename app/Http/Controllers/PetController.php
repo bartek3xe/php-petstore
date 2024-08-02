@@ -5,17 +5,20 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Enums\PetStatusEnum;
+use App\Services\PetValidatorService;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Contracts\PetServiceInterface;
+use Illuminate\Validation\ValidationException;
 
 class PetController extends Controller
 {
     public function __construct(
         private readonly PetServiceInterface $petService,
+        private readonly PetValidatorService $petValidator,
     ) {
     }
 
@@ -39,9 +42,14 @@ class PetController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $this->petService->createPet($request->all());
+        try {
+            $this->petValidator->validateStore($request->all());
+            $this->petService->createPet($request->all());
 
-        return redirect()->route('pets.index');
+            return redirect()->route('pets.index');
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        }
     }
 
     public function edit(string $id): Factory|View|Application
@@ -53,11 +61,16 @@ class PetController extends Controller
 
     public function update(Request $request, int $id): RedirectResponse
     {
-        $data = $request->all();
-        $data['id'] = $id;
-        $this->petService->updatePet($data);
+        try {
+            $data = $request->all();
+            $this->petValidator->validateUpdate($data);
+            $data['id'] = $id;
+            $this->petService->updatePet($data);
 
-        return redirect()->route('pets.index');
+            return redirect()->route('pets.index');
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        }
     }
 
     public function destroy(string $id): RedirectResponse
